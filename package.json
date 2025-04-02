@@ -1,0 +1,22 @@
+{
+  "name": "Draw Steel",
+  "version": "0.0.0",
+  "scripts": {
+    "build": "k-build",
+    "dev": "k-build --watch",
+    "test": "vitest run",
+    "test-watch": "vitest --watch"
+  },
+  "keywords": [],
+  "author": "Scott Casey",
+  "license": "ISC",
+  "devDependencies": {
+    "@kurohyou/k-scaffold": "*",
+    "@vitest/ui": "*",
+    "vitest": "*"
+  },
+  "dependencies": {
+    "sass": "^1.69.5",
+    "sass-embedded": "^1.69.5"
+  }
+}

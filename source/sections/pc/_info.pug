@@ -1,0 +1,119 @@
+section(data-i18n-aria-label="character info").half-gap.header-layout
+  +cutWrapper.info-wrapper
+    .char-info.flex-box.flex-wrap.justify-space-between
+      +input-label({
+        inputObj:{name:'character name',type:'text',class:'underlined'},
+        spanObj:{'data-i18n':'character name',class:'capitalize'}
+      }).flex-span-all.char-name.stacked.flex-column-reverse
+      each name in ['ancestry','class','career','subclass']
+        +input-label({
+          inputObj:{name,type:'text',class:'underlined'},
+          spanObj:{'data-i18n':name,class:'capitalize'},
+          divObj:{class:'name'}
+        }).stacked.flex-column-reverse
+  +cutWrapper.level-wrapper
+    .level-track
+      .flex-box.flex-column.victories
+        span(data-i18n='victories').uppercase
+      +input-label({
+        inputObj:{name:'level',type:'number'},
+        spanObj:{'data-i18n':'level',class:'uppercase'}
+      }).stacked
+      .flex-box.half-gap
+        +cutWrapper('label').cut-label.wealth-label
+          span(data-i18n="wealth").uppercase
+          +number({name:'wealth'})
+        +cutWrapper('label').cut-label.renown-label
+          span(data-i18n="renown").uppercase
+          +number({name:'renown'})
+        +cutWrapper('label').cut-label.xp-label
+          span(data-i18n="xp").uppercase
+          +number({name:'xp'})
+  +cutWrapper.stat-wrapper
+    .flex-box.tiny-gap.justify-space-around
+      each name in spine.abilities
+        .flex-box.flex-column.tiny-gap.ability-label
+          +roller({
+            name,
+            'data-i18n':name,
+            class: 'uppercase',
+            trigger:{triggeredFuncs:['rollAbility']}
+          })
+          +curveWrapper('point','label')(class=`${name}-mod`).ability-mod
+            +number({name})
+    .flex-box.tiny-gap.justify-center
+      label.flex-box.flex-column.tiny-gap
+        +cutInput({name:'size',type:'text'})
+        span(data-i18n="size").capitalize
+      label.flex-box.flex-column.tiny-gap
+        +cutInput({name:'speed',type:'number'})
+        span(data-i18n="speed").capitalize
+      label.flex-box.flex-column.tiny-gap
+        +cutInput({name:'stability',type:'number'})
+        span(data-i18n="stability").capitalize
+
+        
++scss('sheet').
+  .cut-label{
+    min-width: 100px;
+    > .cut-container{
+      display: grid;
+      grid-template-areas:
+        "span"
+        "input";
+      gap: var(--tiny-gap);
+      > span{
+        align-self: start;
+      }
+      > input{
+        min-width: 100%;
+      }
+    }
+  }
+  .header-layout{
+    column-span: all;
+    align-items: start;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      'info xp'
+      'info stats';
+    @container steel (max-width: 600px){
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        'info'
+        'xp'
+        'stats';
+    }
+    @container steel (min-width: 849px){
+      grid-template-areas:
+        'info info'
+        'xp stats';
+    }
+    .info-wrapper{
+      grid-area: info;
+    }
+    .level-wrapper{
+      grid-area: xp;
+    }
+    .stat-wrapper{
+      grid-area: stats;
+    }
+    .char-info{
+      flex: 1 1 auto;
+      row-gap: var(--tiny-gap);
+      column-gap: var(--half-gap);
+      > *{
+        flex-grow: 1;
+      }
+    }
+    .level-track{
+      display: grid;
+      grid-template-columns: 1fr auto;
+      grid-template-rows: auto;
+    }
+    .xp-label{
+      margin-left: auto;
+    }
+  }

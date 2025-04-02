@@ -1,0 +1,120 @@
+section(data-i18n-aria-label="stats").stats-display.flex-box.flex-wrap.justify-space-around
+  .stat-slot.recoveries
+      span(data-i18n='recoveries').uppercase
+      +curveWrapper('circle','label').recovery-current
+        +number({name:'recoveries'})
+      .flex-box.justify-space-around.half-gap
+        +input-label({
+          inputObj:{name:'stamina recovered',type:'number',class:'underlined',trigger:{
+            calculation:'calcStaminaRecovered'
+          }},
+          spanObj:{'data-i18n':'stamina',class:'capitalize'}
+        }).stacked.flex-column-reverse
+        +input-label({
+          inputObj:{name:'recoveries max',type:'number',class:'underlined',trigger:{
+            calculation:'calcRecoveryMax'
+          }},
+          spanObj:{'data-i18n':'max',class:'capitalize'}
+        }).stacked.flex-column-reverse
+  +diamondBorder(['left','right']).stamina
+    span(data-i18n='stamina').uppercase
+    .stamina-row
+      +curveWrapper('shield','label').stamina-current
+        +number({name:'stamina'})
+      +cutWrapper.stamina-thresholds
+        .flex-box.flex-column.tiny-gap
+          label.flex-box.flex-column.tiny-gap.center
+            +steelCheck({name:'winded',value:1})
+            span(data-i18n='winded').capitalize
+          +input-label({
+            inputObj:{name:'winded value',type:'number',class:'underlined',trigger:{
+              calculation:'calcDeath'
+            }},
+            spanObj:{'data-i18n':'≤'}
+          })
+          
+        .flex-box.flex-column.tiny-gap
+          label.flex-box.flex-column.tiny-gap.center
+            +steelCheck({name:'dying',value:1})
+            span(data-i18n='dying').capitalize
+          +input-label({
+            inputObj:{name:'dying value',type:'number',class:'underlined',trigger:{
+              calculation:'calcDeath'
+            }},
+            spanObj:{'data-i18n':'0 to'}
+          })
+  .stat-slot.heroic
+    span(data-i18n='heroic resource').uppercase
+    +curveWrapper('hex','label').heroic-current
+      +number({name:'heroic resource'})
+    +input-label({
+      inputObj:{name:'heroic resource name',type:'text',class:'underlined'},
+      spanObj:{'data-i18n':'name',class:'capitalize'}
+    }).stacked.flex-column-reverse
+  .stat-slot.surges
+    span(data-i18n='surges').uppercase
+    +curveWrapper('box','label').surge-current
+      +number({name:'surges'})
+    +input-label({
+      inputObj:{name:'surge damage',type:'number',class:'underlined',trigger:{
+        calculation:'calcSurgeDamage'
+      }},
+      spanObj:{'data-i18n':'1 surge = damage',class:'capitalize'}
+    })
+    span(data-i18n='2 surges = potency + 1').capitalize
++scss('sheet').
+  .stats-display{
+    column-span: all;
+    border: 2px solid var(--borderColor);
+    row-gap: var(--tiny-gap);
+    padding: var(--tiny-gap);
+  }
+  .diamond.stamina > .diamond-content,
+  .stat-slot{
+    padding: var(--tiny-gap);
+    display: flex;
+    flex-wrap: wrap;
+    row-gap: var(--half-gap);
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+    > :first-child{
+      //- margin-bottom: auto;
+    }
+  }
+  .bordered-slot{
+    border-right: 2px solid var(--borderColor);
+  }
+  .ability-label{
+    align-items: center;
+  }
+  .stamina-row{
+    --_staminaWidth: 80px;
+    --_staminaTrackWidth: calc(var(--_staminaWidth) / 2);
+    display: grid;
+    grid-template-columns: [shield-start] var(--_staminaTrackWidth) [stamina-start] var(--_staminaTrackWidth) [shield-end] 160px [stamina-end];
+    grid-template-rows: [shield-start stamina-start] auto [shield-end stamina-end];
+    place-content: center;
+  }
+  .stamina-current{
+    width: var(--_staminaWidth);
+    grid-area: shield;
+  }
+  .stamina-thresholds{
+    align-self: center;
+    grid-area: stamina;
+    .cut-container{
+      display: flex;
+      > *{
+        align-items: center
+      }
+      > :first-child{
+        border-right: 2px solid var(--borderColor);
+        padding-right: var(--tiny-gap);
+        margin-left: auto;
+      }
+      > :last-child{
+        padding-left: var(--tiny-gap);
+      }
+    }
+  }

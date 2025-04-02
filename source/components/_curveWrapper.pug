@@ -1,0 +1,99 @@
+mixin curveWrapper(shape,elem='div')
+  #{elem}.curve-wrapper(class=`shape-${shape}`)&attributes(attributes)
+    .curve-container
+      .curve__back
+        .curve__content
+          block
++scss.
+  .curve-wrapper{
+    --_activeClip: ;
+    --_borderWidth: 4px;
+    --_halfBorder: calc(var(--_borderWidth) / 2);
+    --_basePadding: 5px;
+    --_borderGap: calc(var(--_basePadding) / 2);
+    --_innerWhiteWidth: calc(var(--_borderWidth) * 1.5);
+    --_padding: var(--basePadding);
+    width: 60px;
+    grid-template-areas: "content";
+    box-sizing: border-box;
+    &,
+    > .curve-container{
+      display: inline-grid;
+      > *{
+        grid-area: content;
+      }
+    }
+    &.shape-hex{
+      aspect-ratio: 1.1547/1;
+      --_activeClip: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+      --_padding: var(--_basePadding) 20%;
+    }
+    &.shape-shield{
+      aspect-ratio: 1/1.1547;
+      --_activeClip: polygon(2% 5%,50% 0%,98% 5%,100% 60%,50% 100%,0% 60%);
+      --_padding: 5% 2% 10%;
+    }
+    &.shape-circle{
+      --_activeClip: circle(50%);
+    }
+    &.shape-point{
+      aspect-ratio: 1/1.1547;
+      --_activeClip: polygon(
+        0% 19.5%, 17.5% 6.5%,37.25% 6.5%,50% 0%,62.75% 6.5%,82.5% 6.5%,100% 19.5%, 
+        100% 80.5%,82.5% 93.5%,62.75% 93.5%,50% 100%,37.25% 93.5%,17.5% 93.5%, 0% 80.5%);
+    }
+    &:is(.shape-box,.shape-circle){
+      aspect-ratio: 1 / 1;
+    }
+    .curve-container{
+      --_totalPadding: calc(
+          calc(var(--_borderGap) * 2) +
+          calc(var(--_halfBorder) * 2)
+        );
+      padding: var(--_borderWidth);
+      background-color: var(--borderColor);
+      --_curveLayout: [content-start] var(--_borderGap)[outer-start] var(--_halfBorder) [outerstop-start] 1fr [outerstop-end] var(--_halfBorder) [outer-end] var(--_borderGap) [content-end];
+      grid-template-columns: var(--_curveLayout);
+      grid-template-rows: var(--_curveLayout);
+      &:before{
+        z-index: 20;
+      }
+      &:before{
+        content: '';
+        place-self: stretch;
+        clip-path: var(--_activeClip);
+        background-color: var(--borderColor);
+        grid-area: outer;
+      }
+      &:after{
+        content: '';
+        grid-area: content;
+        clip-path: var(--_activeClip);
+        background-color: var(--backColor);
+        place-self: stretch;
+      }
+      &,
+      > .curve__back{
+        z-index: 10;
+        clip-path: var(--_activeClip);
+      }
+      > .curve__back{
+        z-index: 30;
+        grid-area: outerstop;
+        background-color: var(--backColor);
+        display: grid;
+        grid-template-areas: "content";
+        > .curve__content{
+          display: grid;
+          > input{
+            width: 0;
+            min-width: 100%;
+            min-height: 100%;
+          }
+        }
+      }
+    }
+    .triangle{
+      pointer-events: none;
+    }
+  }

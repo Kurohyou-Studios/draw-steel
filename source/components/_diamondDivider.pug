@@ -1,0 +1,71 @@
+mixin diamondBorder(position)
+  -
+    position = Array.isArray(position) ?
+      position :
+      [position];
+  .diamond&attributes(attributes)
+    each p in position
+      div(class=`diamond-overlay diamond-overlay--${p}`)
+    .diamond-content
+      block
++scss.
+  .diamond{
+    --_borderSize: 2px;
+    --_border: var(--_borderSize) solid var(--borderColor);
+    --_diamondSize: 10px;
+    --_translationSize: calc(var(--_diamondSize) + var(--_borderSize) + 5px);
+    display: grid;
+    grid-template-areas: "content";
+    > * {
+      grid-area: content;
+    }
+    &:has(.diamond-overlay--left){
+      padding-left: var(--_diamondSize);
+      border-left: var(--_border);
+    }
+    &:has(.diamond-overlay--right){
+      padding-right: var(--_diamondSize);
+      border-right: var(--_border);
+    }
+    &:has(.diamond-overlay--top){
+      padding-top: var(--_diamondSize);
+      border-top: var(--_border);
+    }
+    &:has(.diamond-overlay--bottom){
+      padding-bottom: var(--_diamondSize);
+      border-bottom: var(--_border);
+    }
+    > .diamond-overlay{
+      pointer-events: none;
+      width: var(--_diamondSize);
+      height: var(--_diamondSize);
+      border-bottom: var(--_border);
+      border-left: var(--_border);
+      background-image:
+        linear-gradient(90deg,white -1px,white 25%,transparent 25%,transparent 75%,white 75%),
+        linear-gradient(white -1px,white 25%,var(--borderColor) 25%,var(--borderColor) 75%,white 75%),
+        linear-gradient(90deg,white -1px,white 25%,var(--borderColor) 25%,var(--borderColor) 75%,white 75%),
+        linear-gradient(180deg,white -1px,white 25%,var(--borderColor) 25%,var(--borderColor) 75%,white 75%),
+        linear-gradient(270deg,white -1px,white 25%,var(--borderColor) 25%,var(--borderColor) 75%,white 75%);
+      &--left{
+        rotate: 45deg;
+        place-self: center start;
+        translate: calc(var(--_translationSize) * -1) 0;
+      }
+      &--top{
+        place-self:start center;
+        rotate: 135deg;
+        translate: 0 calc(var(--_translationSize) * -1);
+      }
+      &--right{
+        rotate: 225deg;
+        place-self: center end;
+        translate: var(--_translationSize) 0;
+      }
+      &--bottom{
+        place-self:end center;
+        rotate: 315deg;
+        translate: 0 var(--_translationSize);
+      }
+    }
+  }

@@ -1,0 +1,305 @@
+- const editSections = {base:{}};
+-
+  const createPrefix = (string) => string.replace(/_\$x_/i,'');
+mixin defineEdit(target='base',prefix)
+  - editSections[target] = editSections[target] || {};
+  - prefix = createPrefix(k.repeatingPrefix || prefix);
+  if !prefix
+    - throw new Error('No prefix defined for an edit layout. If the layout is not defined within a repeating section, a prefix is required.');
+  if editSections[target][prefix]
+    - throw new Error(`edit layout already defined for ${prefix}.`); 
+  -
+    editSections[target][prefix] = {
+      attributes,block
+    };
+mixin editButton(buttonObj,editName,prefix)
+  - const actObj = JSON.parse(JSON.stringify(buttonObj));
+  -
+    actObj.class = actObj.class ?
+      `${actObj.class} collapse edit-button` :
+      'collapse edit-button';
+  - actObj.trigger = actObj.trigger || {};
+  - actObj.trigger.triggeredFuncs = ['updateKOverlay',...(actObj.trigger.triggeredFuncs || [])];
+  - actObj.trigger.prefix = createPrefix(k.repeatingPrefix || prefix);
+  - actObj.trigger.editName = editName;
+  +action(actObj)
+mixin editableRepeat(obj,editName='base')
+  - let prefix;
+  +fieldset({...obj,addClass:'external-edit-section'})
+    - prefix = createPrefix(k.repeatingPrefix);
+    +editButton({name:`edit`},editName)
+    block
+  +action({
+    name:`create ${obj.name}`,
+    class:'repcontrol-button repcontrol-button--add',
+    trigger:{triggeredFuncs:['createKEdits'],editName,prefix}
+  })
+
+mixin editSectionSave(overlayName,baseTrigger = {},customName='')
+  - const trigger = JSON.parse(JSON.stringify(baseTrigger));
+  - trigger.triggeredFuncs = ['applyKEdits',...(trigger.triggeredFuncs || [])];
+  - trigger.editName = overlayName;
+  +action({
+    name:`k overlay save ${customName}`.trim(),
+    trigger
+  })&attributes(attributes).edit-save-button
+    block
+mixin editSectionCancel(overlayName,baseTrigger = {},customName='')
+  - const trigger = JSON.parse(JSON.stringify(baseTrigger));
+  - trigger.triggeredFuncs = ['cancelKEdits',...(trigger.triggeredFuncs || [])];
+  - trigger.editName = overlayName;
+  +action({
+    name:`k overlay cancel ${customName}`.trim(),
+    trigger
+  })&attributes(attributes).edit-cancel-button
+    block
+
+//- @pugdoc
+  memberof: 
+  description: generates and places the edit section
+  arguments:
+    - @param {object} obj - Object defining the statistics of the edit section
+      - @param {string} [obj.name = 'name'] - unique name of the edit area
+      - @param {object} [obj.position = {x:'right',y:'top'}] - Where to place the overlay as a fixed position relative to the character sheet iframe.
+        - @param {string} [obj.position.x] - horizontal placement. Options are 'left', 'right', 'center', and 'stretch'
+        - @param {string} [obj.position.y] - vertical placement. Options are 'top', 'bottom', 'middle', and 'stretch'
+      - @param {boolean|string|string[]} [obj.animation=false] - What animation keyframe(s) to use. Can be a K-scaffold defined keyframe. K-scaffold defined animations are fade, slide, and grow.
+  attributes:
+  example: |
+    include ../_k.pug
+    +Mixin Call
+- varObjects['kEditDisplays'] = {};
+mixin generateEdit(obj = {})
+  - const {name='base',position={x:'right',y:'top'},animation=false} = obj;
+  - const {x='left',y='top'} = position;
+  if !editSections[name]
+    - throw new Error(`No edit content defined for ${name}. +generateEdit must be called after all edit displays for a given overlay have been defined`);
+  if varObjects['kEditDisplays'][name]
+    - throw new Error(`edit display has already been created for ${name}. Only one display per index is allowed`);
+  - varObjects['kEditDisplays'][name] = [];
+  - let classText = `k-edit-overlay--${x} k-edit-overlay--${y}`;
+  if animation
+    if Array.isArray(animation)
+      -
+        classText = [
+          classText,
+          ...animation.map(s => `animated-${s}`)
+        ].join(' ');
+    else
+      - classText = [classText,`animated-${animation}`].join(' ');
+  +hidden({name:`k edit prefix ${name}`})
+  +checkbox({name:`k edit overlay state ${name}`,value:1,hidden:''}).k-edit-display-control
+  .k-edit-overlay.k-controlled-display(class=classText)&attributes(attributes)
+    - setSystemPrefix(`${name} edit`);
+    block
+    each obj,key in editSections[name]
+      - varObjects['kEditDisplays'][name].push(key);
+      +checkbox({name:`k edit overlay ${name}`,value:key,hidden:''}).k-edit-display-control
+      .k-controlled-display&attributes(obj.attributes)
+        - obj.block && obj.block();
+    - setSystemPrefix('');
++module
+  include ./editJS/_index.pug
++scss('sheet').
+  :where(.external-edit-section) + :where(fieldset) + :where(.repcontainer){
+    .edit-button{
+      &:where(:before){
+        content: 'p';
+      }
+    }
+    + .repcontrol > .repcontrol_add{
+      display: none !important;
+    }
+  }
+  :where(.k-edit-overlay){
+    position: fixed;
+    background-color: var(--backColor);
+    z-index: 1000;
+    --_slide: empty;
+    --_fade: empty;
+    --_grow: empty;
+    --_allAnimations: var(--_slide), var(--_fade), var(--_grow);
+    &:where(.k-edit-overlay--right){
+      right: 0;
+    }
+    &:where(.k-edit-overlay--left){
+      left: 0;
+    }
+    &:where(.k-edit-overlay--top){
+      top: 0;
+    }
+    &:where(.k-edit-overlay--bottom){
+      bottom: 0;
+    }
+  }
+  .k-edit-display-control{
+    //- closed state
+    &:not(:checked) + .k-edit-overlay{
+      display: none;
+    }
+    &:checked + .k-edit-overlay[class*="animated"]{
+      animation: {
+        name: var(--_allAnimations);
+        duration: 1s;
+        fill-mode: forwards;
+      };
+      &.k-edit-overlay--right{
+        &.k-edit-overlay--top{
+          transform-origin: top right;
+        }
+        &.k-edit-overlay--middle{
+          transform-origin: center right;
+        }
+        &.k-edit-overlay--bottom{
+          transform-origin: bottom right;
+        }
+        &.animated-slide{
+          --_slide: slideinFromRight;
+        }
+      }
+      &.k-edit-overlay--left{
+        &.k-edit-overlay--top{
+          transform-origin: top left;
+        }
+        &.k-edit-overlay--middle{
+          transform-origin: center left;
+        }
+        &.k-edit-overlay--bottom{
+          transform-origin: bottom left;
+        }
+        &.animated-slide{
+          --_slide: slideinFromLeft;
+        }
+      }
+      &.animated-fade{
+        --_fade: fadein;
+      }
+      &.animated-grow{
+        --_grow: growin;
+      }
+    }
+    //- closed state
+    &:not(:checked) + .k-edit-overlay[class*="animated"]{
+      animation: {
+        name: displayout, var(--_allAnimations);
+        duration: 1s;
+        fill-mode: both;
+      };
+      &.k-edit-overlay--right{
+        &.k-edit-overlay--top{
+          transform-origin: top right;
+        }
+        &.k-edit-overlay--middle{
+          transform-origin: center right;
+        }
+        &.k-edit-overlay--bottom{
+          transform-origin: bottom right;
+        }
+        &.animated-slide{
+          --_slide: slideoutFromRight;
+        }
+      }
+      &.k-edit-overlay--left{
+        &.k-edit-overlay--top{
+          transform-origin: top left;
+        }
+        &.k-edit-overlay--middle{
+          transform-origin: center left;
+        }
+        &.k-edit-overlay--bottom{
+          transform-origin: bottom left;
+        }
+        &.animated-slide{
+          --_slide: slideoutFromLeft;
+        }
+      }
+      &.animated-fade{
+        --_fade: fadeout;
+      }
+      &.animated-grow{
+        --_grow: growout;
+      }
+    }
+  }
+  @keyframes empty{
+    from{
+      position: fixed;
+    }
+    to{
+      position: fixed;
+    }
+  }
+  @keyframes growin{
+    from{
+      scale: 0;
+    }
+    to{
+      scale: 100%;
+    }
+  }
+  @keyframes growout{
+    from{
+      scale: 100%;
+    }
+
+    to{
+      scale: 0;
+    }
+  }
+  @keyframes displayout{
+    from{
+      display: block;
+    }
+    to{
+      display: none;
+    }
+  }
+  @keyframes slideinFromRight {
+    from{
+      translate: 100%;
+    }
+    to{
+      translate: 0;
+    }
+  }
+  @keyframes slideoutFromRight{
+    from{
+      translate: 0;
+    }
+    to{
+      translate: 100%;
+    }
+  }
+  @keyframes slideinFromLeft {
+    from{
+      translate: -100%;
+    }
+    to{
+      translate: 0;
+    }
+  }
+  @keyframes slideoutFromLeft{
+    from{
+      translate: 0;
+    }
+    to{
+      translate: -100%;
+    }
+  }
+  
+  @keyframes fadein {
+    from{
+      opacity: 0;
+    }
+    to{
+      opacity: 1;
+    }
+  }
+  @keyframes fadeout{
+    from{
+      opacity: 1;
+    }
+    to{
+      opacity: 0;
+    }
+  }

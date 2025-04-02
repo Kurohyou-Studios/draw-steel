@@ -1,0 +1,18 @@
+mixin steelCheck(inputObj)
+  +checkbox(inputObj).steel-check
++scss('sheet').
+  .steel-check.steel-check{
+    --_width: 10px;
+    border: 1px solid var(--borderColor);
+    rotate: 45deg;
+    min-width: var(--_width);
+    min-height: var(--_width);
+    width: var(--_width);
+    height: var(--_width);
+    &:checked{
+      background-color: var(--borderColor) !important;
+      &:before{
+        display: none;
+      }
+    }
+  }

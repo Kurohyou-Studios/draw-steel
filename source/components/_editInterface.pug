@@ -94,7 +94,7 @@ mixin generateEdit(obj = {})
     block
     each obj,key in editSections[name]
       - varObjects['kEditDisplays'][name].push(key);
-      +checkbox({name:`k edit overlay ${name}`,value:key,hidden:''}).k-edit-display-control
+      +checkbox({name:`k overlay`,value:key,hidden:''}).k-edit-display-control
       .k-controlled-display&attributes(obj.attributes)
         - obj.block && obj.block();
     - setSystemPrefix('');
@@ -134,7 +134,7 @@ mixin generateEdit(obj = {})
   }
   .k-edit-display-control{
     //- closed state
-    &:not(:checked) + .k-edit-overlay{
+    &:not(:checked) + .k-controlled-display{
       display: none;
     }
     &:checked + .k-edit-overlay[class*="animated"]{

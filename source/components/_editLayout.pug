@@ -2,20 +2,36 @@ mixin editLayout(editName='base',prefix)
   +defineEdit(editName,prefix)&attributes(attributes).edit-layout
     +cutWrapper
       block
-      +editSectionSave(editName).material-icons
-        |save
-      +editSectionCancel(editName).material-icons
-        |close
+      .grid-span-all.button-row
+        +editSectionSave(editName).material-icons
+          |save
+        +editSectionCancel(editName).material-icons
+          |close
 +scss('sheet').
   .edit-layout{
     margin-right: -5px;
     margin-top: -5px;
     filter: drop-shadow(rgba(0, 0, 0, 0.45) 0px 25px 20px);
+    .button-row{
+      position: sticky;
+      bottom: 0px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      button{
+        justify-self: stretch;
+        width: 100%;
+        text-align: center;
+        background-color: var(--backColor);
+      }
+    }
     > .cutWrapper{
       background-color: var(--backColor);
       > .cut-container{
         padding-right: 10px;
         padding-top: 10px;
+        max-height: 90vh;
+        width: 450px;
+        overflow: auto;
       }
     }
     .edit-save-button,

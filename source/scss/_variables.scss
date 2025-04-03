@@ -4,6 +4,18 @@
   @include k.variables;
   // Customize your variables here
   --notchColor: var(--backColor);
+
+  --lm-highlightColor: var(--lm-borderColor);
+  --dm-highlightColor: var(--dm-borderColor);
+  --highlightColor: var(--lm-highlightColor);
+
+  --lm-highlightText: var(--dm-fontColor);
+  --dm-highlightText: var(--lm-fontColor);
+  --highlightText: var(--lm-highlightText);
+  
+  --notchSize: 3px;
+  --notchBorderSize: 2px;
+  --clipSize: calc(var(--notchSize) * 1.7072135785);
 }
 
 @mixin dark {

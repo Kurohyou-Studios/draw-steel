@@ -19,7 +19,7 @@ include rolltemplate/_index.pug
   }
   .repeating-section{
     display: grid;
-    grid-template-columns: 1fr 1f;
+    grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr auto;
     grid-template-areas:
       'rep rep'
@@ -29,11 +29,41 @@ include rolltemplate/_index.pug
     }
     .repcontrol-button--add{
       grid-area: add;
-      place-self: center;
+      place-self: center start;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      box-sizing: border-box;
+      transition: {
+        property: color, background-color;
+        duration: 1s;
+      };
+      &:hover,
+      &:focus-visible{
+        background-color: var(--highlightColor);
+        color: var(--highlightText);
+      }
     }
     .repcontrol{
       grid-area: edit;
-      place-self: center;
+      place-self: center start;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      box-sizing: border-box;
+      transition: {
+        property: color, background-color;
+        duration: 1s;
+      };
+      > .btn{
+        width: 100%;
+        text-align: center;
+      }
+      &:hover,
+      &:focus-visible{
+        background-color: var(--highlightColor);
+        color: var(--highlightText);
+      }
     }
   }
   .description{

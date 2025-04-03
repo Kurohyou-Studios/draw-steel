@@ -8,7 +8,9 @@ const applyKEdits = ({attributes,sections,casc,trigger}) => {
     .filter(a => a.startsWith(`attr_${section}`));
   rowAttributes.forEach(a => {
     const attrName = a.replace(/attr_repeating_.+?_.+?_/,'');
-    attributes[`${row}_${attrName}`] = attributes[`${trigger.editName}_edit_${attrName}`];
+    if(casc[`attr_${trigger.editName}_edit_${attrName}`]){
+      attributes[`${row}_${attrName}`] = attributes[`${trigger.editName}_edit_${attrName}`];
+    }
   });
   closeKOverlay(trigger.editName,attributes);
   k.setActionCalls({attributes,sections});

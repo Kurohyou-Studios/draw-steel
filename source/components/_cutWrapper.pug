@@ -39,51 +39,48 @@ mixin headedCut
         - contentObj.block && contentObj.block();
 +scss.
   .headed-cut{
-    --_headerAdjust: 10px;
+    --_headerAdjust: 12px;
     display: grid;
     grid-template-columns: [head-start content-start] 1fr [head-end content-end];
     grid-template-rows: 
       [head-start]
-      auto
+      0
       [head-end content-start]
-      auto
       1fr
       [content-end];
+    padding-top: var(--_headerAdjust);
     > .cut-header{
       grid-area: head;
       place-self: center;
       background-color: var(--backColor);
       padding-inline: var(--half-gap);
-      position: relative;
-      top: var(--_headerAdjust);
       z-index: 10;
-      margin-top: calc(var(--_headerAdjust) * -1);
     }
     > .cutWrapper{
       grid-area: content;
       > .cut-container{
-        padding-top: calc(var(--_clipSize) * 2);
+        padding-top: calc(var(--clipSize) * 2);
       }
     }
   }
   .cutWrapper{
-    --notchSize: 3px;
-    --notchBorderSize: 2px;
-    --_clipSize: calc(var(--notchSize) * 1.7072135785);
     display: grid;
     grid-template-areas: 'content';
     clip-path: polygon(
-      var(--_clipSize) 0, calc(100% - var(--_clipSize)) 0,
-      100% var(--_clipSize), 100% calc(100% - var(--_clipSize)),
-      calc(100% - var(--_clipSize)) 100%, var(--_clipSize) 100%,
-      0 calc(100% - var(--_clipSize)), 0 var(--_clipSize)
+      var(--clipSize) 0, calc(100% - var(--clipSize)) 0,
+      100% var(--clipSize), 100% calc(100% - var(--clipSize)),
+      calc(100% - var(--clipSize)) 100%, var(--clipSize) 100%,
+      0 calc(100% - var(--clipSize)), 0 var(--clipSize)
       );
     > .cut-container{
       grid-area: content;
       background-color: var(--inputBack);
       border: var(--notchBorderSize) solid var(--borderColor);
+      &:has(> .input-label){
+        display: grid;
+      }
       &:not(input):not(select){
-        padding: var(--_clipSize);
+        padding: var(--clipSize);
       }
       &:checked{
         --checkedBackColor: var(--borderColor);

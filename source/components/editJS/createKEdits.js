@@ -1,5 +1,5 @@
 const createKEdits = ({attributes,sections,casc,trigger}) => {
-  openKOverlay(trigger.editName,attributes,casc);
+  openKOverlay(trigger.editName,trigger.prefix,attributes,casc);
   const section = trigger.name
     .replace(/create-/,'');
   kOverlaySetup(trigger.editName,attributes,section,trigger.prefix);

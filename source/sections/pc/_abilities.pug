@@ -1,0 +1,177 @@
+mixin circleLabel
+  label.circle-label&attributes(attributes)
+    if k.repeatingPrefix
+      +span({name:'cost'})
+    else
+      +number({name:'cost'})
+    span(data-i18n='cost')
+section(data-i18n-aria-label="abilities").ability-container
+  .repeating-section
+    +editableRepeat({name:'abilities'})
+      each name in ['name','type','keywords','action','distance','target','power roll','tier 1','tier 2','tier 3','trigger','effect','cost']
+        +hidden({name})
+      +headedCut.ability-display
+        +header.ability-header
+          +span({name:'type','data-i18n-dynamic':''})
+        +content
+          +diamondBorder('bottom').grid-span-all
+            .flex-box.half-gap.justify-space-between
+              +roller({name:'roll',trigger:{
+                triggeredFuncs:['rollAbility']
+              }})
+                +span({name:'name'})
+              +hidden({name:'cost'}).display-control--non-zero
+              +circleLabel.controlled-display
+          each label,name in {keywords:'keywords','action type':'action',distance:'distance',target:'target','power roll':'power roll'}
+            +hidden({name,value:''}).display-control--non-zero
+            +cutWrapper()(class=label).controlled-display
+              .input-label.stacked
+                span(data-i18n=label).input-label__text
+                +span({name}).input-label__input
+      +editLayout.ability-edit
+        .name-row.grid-span-all
+          +circleLabel
+          +cutLabel({inputObj:{name:'name',type:'text'},spanObj:{'data-i18n':'name',class:'capitalize'}})
+          +cutSelectLabel({inputObj:{name:'type'},spanObj:{'data-i18n':'type',class:'capitalize'}})
+            +option({value:'ability','data-i18n':'ability',selected:''}).capitalize
+            +option({value:'melee free strike','data-i18n':'melee free strike'}).capitalize
+            +option({value:'ranged free strike','data-i18n':'ranged free strike'}).capitalize
+            +option({value:'signature ability','data-i18n':'signature'}).capitalize
+            +option({value:'heroic ability','data-i18n':'heroic'}).capitalize
+            +option({value:'triggered action','data-i18n':'triggered'}).capitalize
+            +option({value:'free triggered action','data-i18n':'free triggered'}).capitalize
+        +cutLabel({inputObj:{name:'keywords',type:'text'},spanObj:{'data-i18n':'keywords'}}).grid-span-4
+        +cutLabel({inputObj:{name:'action type',type:'text'},spanObj:{'data-i18n':'action'}}).grid-span-2
+        +cutLabel({inputObj:{name:'distance',type:'text'},spanObj:{'data-i18n':'distance'}}).grid-span-3
+        +cutLabel({inputObj:{name:'target',type:'text'},spanObj:{'data-i18n':'target'}}).grid-span-3
+        +cutSelectLabel({inputObj:{name:'power roll'},spanObj:{'data-i18n':'power roll'}}).grid-span-all
+          +option({value:'','data-i18n':'select one',selected:''})
+          each value in ['might','agility','reason','intuition','presence']
+            +option({value,'data-i18n':value})
+        each s,n in spine.dicePoints
+          +hidden({name:'power roll'}).display-control--non-zero
+          label.grid-span-all.tier-row.controlled-display
+            +cutWrapper
+              span #{s}
+            +adaptiveTextarea({name:`tier ${n+1}`}).underlined
+        +checkbox({name:'type',value:'triggered action',hidden:''}).display-control
+        label.input-label.stacked.grid-span-all.effect-input.controlled-display
+          span(data-i18n='trigger').input-label__text
+          +adaptiveTextarea({name:'trigger'}).underlined.input-label__input
+        +checkbox({name:'type',value:'free triggered action',hidden:''}).display-control
+        label.input-label.stacked.grid-span-all.effect-input.controlled-display
+          span(data-i18n='trigger').input-label__text
+          +adaptiveTextarea({name:'trigger'}).underlined.input-label__input
+        label.input-label.stacked.grid-span-all.effect-input
+          span(data-i18n='effect').input-label__text
+          +adaptiveTextarea({name:'effect'}).underlined.input-label__input
++scss('sheet').
+  .ability-display > .cutWrapper > .cut-container{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--half-gap);
+  }
+  .circle-label{
+    display: grid;
+    grid-template-areas: 'content';
+    aspect-ratio: 1 / 1;
+    place-self: center;
+    min-height: 40px;
+    > *{
+      grid-area: content;
+    }
+    :first-child{
+      border: 2px solid var(--borderColor);
+      border-radius: 50%;
+      text-align: center;
+    }
+    :last-child{
+      background-color: var(--backColor);
+      text-align: center;
+      place-self: end center;
+      padding-inline: var(--tiny-gap);
+    }
+  }
+  .grid-span-5{
+    grid-column: span 5;
+  }
+  .grid-span-4{
+    grid-column: span 4;
+  }
+  .grid-span-3{
+    grid-column: span 3;
+  }
+  .grid-span-2{
+    grid-column: span 2;
+  }
+  .ability-edit{
+    > .cutWrapper > .cut-container{
+      display: grid;
+      grid-template-columns: repeat(6,1fr);
+      gap: var(--half-gap);
+      .name-row{
+        display: grid;
+        gap: inherit;
+        grid-template-columns: auto 1fr auto;
+      }
+    }
+    .effect-input{
+      gap: inherit;
+      .adaptive{
+        align-self: stretch;
+      }
+    }
+    .tier-row{
+      align-items: start;
+      gap: inherit;
+      display: grid;
+      grid-template-columns: 60px 1fr;
+      .cut-container{
+        display: grid;
+        place-items: center;
+      }
+      > .adaptive{
+        flex-grow: 1;
+      }
+    }
+  }
+  .ability-container > .repeating-section{
+    position: relative;
+    row-gap: var(--half-gap);
+    .repcontainer{
+      gap: var(--half-gap);
+    }
+    .repcontrol-button--add{
+      border: {
+        top: 2px solid var(--borderColor);
+        left: 2px solid var(--borderColor);
+        bottom: 2px solid var(--borderColor);
+      };
+      clip-path: border-box polygon(
+        var(--clipSize) 0, 100% 0, 
+        100% 100%, var(--clipSize) 100%,
+        0 calc(100% - var(--clipSize)), 0 var(--clipSize)
+        );
+      background-image: 
+        linear-gradient(45deg,var(--borderColor) var(--notchSize),transparent var(--notchSize) + var(--notchBorderSize)),
+        linear-gradient(calc(45deg + 90deg),var(--borderColor) var(--notchSize),transparent var(--notchSize) + var(--notchBorderSize));
+    }
+    .repcontrol{
+      border: {
+        top: 2px solid var(--borderColor);
+        right: 2px solid var(--borderColor);
+        bottom: 2px solid var(--borderColor);
+      };
+      clip-path: border-box polygon(
+        0 0, calc(100% - var(--clipSize)) 0,
+        100% var(--clipSize), 100% calc(100% - var(--clipSize)),
+        calc(100% - var(--clipSize)) 100%, 0 100%
+        );
+      background-image: 
+        linear-gradient(calc(45deg + 270deg),var(--borderColor) var(--notchSize),transparent var(--notchSize) + var(--notchBorderSize)),
+        linear-gradient(calc(45deg + 180deg),var(--borderColor) var(--notchSize),transparent var(--notchSize) + var(--notchBorderSize));
+    }
+    > *{
+      break-inside: avoid;
+    }
+  }

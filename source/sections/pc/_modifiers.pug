@@ -1,11 +1,23 @@
-mixin damageHeaders
+mixin damageHeaders(wrapper)
+  -
+    const mix = wrapper ?
+      'span' :
+      'number';
   each t in ['ranged','melee']
-    .damage-columns
+    if wrapper
+      +checkbox({name:`show ${t}`,hidden:'',value:1,trigger:{
+        calculation:'determineDamageColumnDisplay'
+      }}).display-control
+    div(class=`${t}${wrapper ? ' controlled-display' : ''}`).damage-columns&attributes(attributes)
       .damage-header
         span(data-i18n=`${t} weapon damage`).capitalize
-      each s,n in ['≤ 11','12-16','17+']
+      each s,n in spine.dicePoints
+        -
+          const trigger = wrapper ?
+            {affects:[`${k.repeatingPrefix}show_${t}`]} :
+            {};
         label.flex-box.flex-column
-          +number({name:`${t} damage ${n}`})
+          +#{mix}({name:`${t} damage ${n+1}`,trigger})
           +cutWrapper
             span #{s}
 +cutWrapper('section')(data-i18n-aria-label="modifiers").modifier-container
@@ -17,16 +29,17 @@ mixin damageHeaders
         +hidden({name,value:''})
       +diamondBorder('bottom')
         .modifier-display
-          .flex-box.tiny-gap.grid-span-all
+          .flex-box.half-gap.grid-span-all.modifier-display-header
+            +steelCheck({name:'active',value:1,checked:''})
             +span({name:'type'}).bold.uppercase
             +span({name:'name'}).name
           each name in ['implement','speed','melee','ranged','armor','area','stability','stamina']
             +hidden({name,value:''}).display-control--non-zero
-            +cutWrapper()(class=name)
-              .input-label.stacked.controlled-display
+            +cutWrapper()(class=name).controlled-display
+              .input-label.stacked
                 span(data-i18n=name).input-label__text
                 +span({name}).input-label__input
-          //- +damageHeaders
+          +damageHeaders('span')
           +span({name:'benefits'}).description.grid-span-all
       +editLayout.modifier-edit
         .name-row.grid-span-all
@@ -42,6 +55,12 @@ mixin damageHeaders
         +damageHeaders
         +adaptiveTextarea({name:'benefits'}).grid-span-all.underlined
 +scss('sheet').
+  .modifier-display-header{
+    align-items: start;
+    .steel-check{
+      margin-top: var(--tiny-gap);
+    }
+  }
   .modifier-head{
     .diamond-content{
       display: flex;
@@ -50,11 +69,27 @@ mixin damageHeaders
   }
   .modifier-display{
     display: grid;
-    grid-template-columns: 1fr repeat(3,80px);
+    grid-template-columns: repeat(6, 1fr);
     gap: var(--tiny-gap);
+    grid-auto-flow: dense;
+    .implement,.armor,.damage-columns{
+      grid-column: span 3;
+    }
   }
   .modifier-container{
     break-inside: avoid;
+    .diamond{
+      z-index:10;
+    }
+    .collapse{
+      right: 0;
+    }
+    .repitem:first-child{
+      margin-top: var(--tiny-gap);
+    }
+    .repcontainer{
+      gap: var(--tiny-gap);
+    }
   }
   .modifier-container,
   .modifier-edit{
@@ -94,3 +129,25 @@ mixin damageHeaders
       gap: var(--tiny-gap);
     }
   }
++module.
+  /**
+   * 
+   * @param {object} trigger - The trigger that caused the function to be called
+   * @param {object} attributes - The attribute values of the character
+   * @param {object[]} sections - All the repeating section IDs
+   * @param {object} casc - Expanded cascade object
+   */
+  const determineDamageColumnDisplay = function({trigger,attributes,sections,casc}){
+    const [section,rowID,attr] = k.parseTriggerName(trigger.name);
+    const row = `${section}_${rowID}`;
+    const rangeType = attr.replace(/show_/,'');
+    let isActive = 0;
+    for(let n = 1;n <=3;n++){
+      if(attributes[`${row}_${rangeType}_damage_${n}`]){
+        isActive = 1;
+        break;
+      }
+    }
+    return isActive;
+  };
+  k.registerFuncs({determineDamageColumnDisplay});

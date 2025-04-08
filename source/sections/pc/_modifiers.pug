@@ -20,40 +20,43 @@ mixin damageHeaders(wrapper)
           +#{mix}({name:`${t} damage ${n+1}`,trigger})
           +cutWrapper
             span #{s}
-+cutWrapper('section')(data-i18n-aria-label="modifiers").modifier-container
-  +diamondBorder('bottom').modifier-head
++headedCut
+  +header
     span(data-i18n='modifiers').uppercase
-  .repeating-section
-    +editableRepeat({name:'modifiers'})
-      each name in ['name','implement','armor','type','speed','melee','ranged','area','stability','stamina','benefits','ranged damage 1','ranged damage 2','ranged damage 3','melee damage 1','melee damage 2','melee damage 3']
-        +hidden({name,value:''})
-      +diamondBorder('bottom')
-        .modifier-display
-          .flex-box.half-gap.grid-span-all.modifier-display-header
-            +steelCheck({name:'active',value:1,checked:''})
-            +span({name:'type'}).bold.uppercase
-            +span({name:'name'}).name
-          each name in ['implement','speed','melee','ranged','armor','area','stability','stamina']
-            +hidden({name,value:''}).display-control--non-zero
-            +cutWrapper()(class=name).controlled-display
-              .input-label.stacked
-                span(data-i18n=name).input-label__text
-                +span({name}).input-label__input
-          +damageHeaders('span')
-          +span({name:'benefits'}).description.grid-span-all
-      +editLayout.modifier-edit
-        .name-row.grid-span-all
-          +cutLabel({inputObj:{name:'name',type:'text'},spanObj:{'data-i18n':'name',class:'capitalize'}})
-          +cutSelectLabel({inputObj:{name:'type'},spanObj:{'data-i18n':'type',class:'capitalize'}})
-            +option({value:'','data-i18n':'select one',selected:''}).capitalize
-            each value in ['kit','enchantment','prayer','augmentation','ward']
-              +option({value,'data-i18n':value}).capitalize
-        +cutLabel({inputObj:{name:'implement',type:'text'},spanObj:{'data-i18n':'weapon / implement',class:'capitalize'}})
-        +cutLabel({inputObj:{name:'armor',type:'text'},spanObj:{'data-i18n':'armor',class:'capitalize'}})
-        each name in ['speed','melee','ranged','area','stability','stamina']
-          +cutLabel({inputObj:{name,type:'number'},spanObj:{'data-i18n':name,class:'capitalize'}})
-        +damageHeaders
-        +adaptiveTextarea({name:'benefits'}).grid-span-all.underlined
+  +content.modifier-container
+    .repeating-section
+      +editableRepeat({name:'modifiers'})
+        each name in ['name','implement','armor','type','speed','melee','ranged','area','stability','stamina','benefits','ranged damage 1','ranged damage 2','ranged damage 3','melee damage 1','melee damage 2','melee damage 3']
+          +hidden({name,value:''})
+        +diamondBorder('bottom')
+          .modifier-display
+            .flex-box.half-gap.grid-span-all.modifier-display-header
+              +steelCheck({name:'active',value:1,checked:''})
+              +span({name:'type'}).bold.uppercase
+              +span({name:'name'}).name
+            each name in ['implement','speed','melee','ranged','armor','area','stability','stamina']
+              +hidden({name,value:''}).display-control--non-zero
+              +cutWrapper()(class=name).controlled-display
+                .input-label.stacked
+                  span(data-i18n=name).input-label__text
+                  +span({name}).input-label__input
+            +damageHeaders('span')
+            +span({name:'benefits'}).description.grid-span-all
+        +editLayout.modifier-edit
+          .name-row.grid-span-all
+            +cutLabel({inputObj:{name:'name',type:'text'},spanObj:{'data-i18n':'name',class:'capitalize'}})
+            +cutSelectLabel({inputObj:{name:'type'},spanObj:{'data-i18n':'type',class:'capitalize'}})
+              +option({value:'','data-i18n':'select one',selected:''}).capitalize
+              each value in ['kit','enchantment','prayer','augmentation','ward']
+                +option({value,'data-i18n':value}).capitalize
+          +cutLabel({inputObj:{name:'implement',type:'text'},spanObj:{'data-i18n':'weapon / implement',class:'capitalize'}}).grid-span-3
+          each name in ['speed','melee','ranged']
+            +cutLabel({inputObj:{name,type:'number'},spanObj:{'data-i18n':name,class:'capitalize'}})
+          +cutLabel({inputObj:{name:'armor',type:'text'},spanObj:{'data-i18n':'armor',class:'capitalize'}}).grid-span-3
+          each name in ['area','stability','stamina']
+            +cutLabel({inputObj:{name,type:'number'},spanObj:{'data-i18n':name,class:'capitalize'}})
+          +damageHeaders.grid-span-3
+          +adaptiveTextarea({name:'benefits'}).grid-span-all.underlined
 +scss('sheet').
   .modifier-display-header{
     align-items: start;
@@ -125,7 +128,7 @@ mixin damageHeaders(wrapper)
     }
     > .cutWrapper > .cut-container{
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(6,1fr);
       gap: var(--tiny-gap);
     }
   }

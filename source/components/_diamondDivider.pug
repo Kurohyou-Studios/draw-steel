@@ -22,18 +22,22 @@ mixin diamondBorder(position)
     &:has(.diamond-overlay--left){
       padding-left: var(--_diamondSize);
       border-left: var(--_border);
+      margin-left: var(--_diamondSize);
     }
     &:has(.diamond-overlay--right){
       padding-right: var(--_diamondSize);
       border-right: var(--_border);
+      margin-right: var(--_diamondSize);
     }
     &:has(.diamond-overlay--top){
       padding-top: var(--_diamondSize);
       border-top: var(--_border);
+      margin-top: var(--_diamondSize);
     }
     &:has(.diamond-overlay--bottom){
       padding-bottom: var(--_diamondSize);
       border-bottom: var(--_border);
+      margin-bottom: var(--_diamondSize);
     }
     > .diamond-overlay{
       pointer-events: none;

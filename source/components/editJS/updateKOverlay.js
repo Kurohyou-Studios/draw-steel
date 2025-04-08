@@ -4,10 +4,9 @@ const updateKOverlay = ({attributes,sections,casc,trigger}) => {
   openKOverlay(trigger.editName,trigger.prefix,attributes,casc);
   attributes[`k_edit_prefix_${trigger.editName.replace(/\s+|-/g,'_')}`] = row;
   const attrFilter = n => n.startsWith(row) && !n.endsWith('edit_row');
-  const rowAttributes = [...new Set([...Object.keys(attributes.attributes).filter(attrFilter),...Object.keys(attributes.updates).filter(attrFilter)])];
-  rowAttributes.forEach(attr =>{
-    const attrName = attr.replace(`${row}_`,'');
-    attributes[`${trigger.editName.replace(/\s+|-/g,'_')}_edit_${attrName}`] = attributes[attr];
-  });
+  kEditDisplays[trigger.editName][section]?.forEach(baseName => {
+    const attrName = baseName .replace(`${trigger.editName}_edit_`,'');
+    attributes[baseName] = attributes[`${row}_${attrName}`];
+  })
 };
 k.registerFuncs({updateKOverlay});

@@ -35,7 +35,7 @@ mixin headedCut
     .cut-header&attributes(headObj.attributes)
       - headObj.block && headObj.block();
     .cutWrapper
-      .cut-container&attributes(attributes)
+      .cut-container&attributes(contentObj.attributes)
         - contentObj.block && contentObj.block();
 +scss.
   .headed-cut{

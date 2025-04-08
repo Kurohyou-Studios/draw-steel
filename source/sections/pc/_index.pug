@@ -1,4 +1,27 @@
 include ./_info.pug
 include ./_stats.pug
-include ./_modifiers.pug
-include ./_abilities.pug
++tabs({name:'details',defaultActiveTab:'general'})
+  +tab({name:'general'})
+    include ./_career-complication.pug
+    include ./_skills.pug
+    include ./_culture.pug
+  +tab({name:'combat'})
+    include ./_conditions.pug
+    include ./_modifiers.pug
+    include ./_abilities.pug
+  +tab({name:'downtime'})
+    include ./_project.pug
++scss('sheet').
+  .tabs--details{
+    column-span: all;
+    .tabs__container {
+      column-gap: var(--half-gap);
+      column-fill: balance;
+    }
+    .tabs--details__container--general{
+      column-width: 250px;
+    }
+    .tabs--details__container--combat{
+      column-width: 300px;
+    }
+  }

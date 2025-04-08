@@ -1,0 +1,19 @@
+section(data-i18n-aria-label='culture').culture-section
+  +diamondBorder('bottom').culture-head
+    span(data-i18n='culture').uppercase
+  each name in ['environment','organization','upbringing']
+    +headedCut
+      +header
+        span(data-i18n=name).uppercase
+      +content
+        +text({name:`${name} name`}).underlined
+        +adaptiveTextarea({name})
+  +headedCut
+    +header
+      span(data-i18n='languages').uppercase
+    +content
+      +adaptiveTextarea({name})
++scss('sheet').
+  .culture-head{
+    margin-bottom: var(--normal-gap);
+  }

@@ -4,12 +4,10 @@ const applyKEdits = ({attributes,sections,casc,trigger}) => {
   if(!sections[section].includes(rowID.toLowerCase())){
     sections[section].push(rowID);
   }
-  const rowAttributes = Object.keys(k.cascades)
-    .filter(a => a.startsWith(`attr_${section}`));
-  rowAttributes.forEach(a => {
-    const attrName = a.replace(/attr_repeating_.+?_.+?_/,'');
-    if(casc[`attr_${trigger.editName}_edit_${attrName}`]){
-      attributes[`${row}_${attrName}`] = attributes[`${trigger.editName}_edit_${attrName}`];
+  kEditDisplays[trigger.editName][section]?.forEach(baseName => {
+    const attrName = baseName.replace(`${trigger.editName}_edit_`,'');
+    if(casc[`attr_${baseName}`]){
+      attributes[`${row}_${attrName}`] = attributes[baseName];
     }
   });
   closeKOverlay(trigger.editName,attributes);

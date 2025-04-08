@@ -1,0 +1,33 @@
+section(data-i18n-aria-label="skills").skills-container
+  +diamondBorder('bottom').skill-head
+    span(data-i18n='skills').uppercase
+  each skillArray,category in spine.skills
+    .skill-category
+      span(data-i18n=category).bold.capitalize
+      each name in skillArray
+        .flex-box.tiny-gap.skill-row
+          +steelCheck({name,value:1})
+          +roller({
+            name,
+            'data-i18n':name,
+            class:'capitalize',
+            trigger:{triggeredFuncs:['rollSkill']}
+          })
++scss('sheet').
+  .skills-container{
+    column-gap: var(--half-gap);
+    column-width: 120px;
+    column-fill: balance;
+  }
+  .skill-head{
+    column-span: all;
+  }
+  .skill-category{
+    break-inside: avoid
+  }
+  .skills-container{
+    break-inside: avoid;
+  }
+  .skill-row{
+    align-items: center;
+  }

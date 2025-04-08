@@ -1,0 +1,28 @@
+mixin customSelect(inputObj)
+  .custom-select-container&attributes(attributes)
+    - const n = inputObj.name;
+    +select(inputObj)
+      block
+      +option({value:'custom','data-i18n':'custom'})
+    +checkbox({name:n,value:'custom',hidden:''}).select-control
+    +text({name:`custom ${n}`})
++scss('sheet').
+  .custom-select-container{
+    display: grid;
+    grid-template-columns: 1fr 1em;
+    position: relative;
+    background-color: var(--backColor);
+    input{
+      grid-column: 1 / 2;
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      background-color: inherit;
+    }
+    .select-control:not(:checked) + input{
+      display: none;
+    }
+    select{
+      grid-column: 1 / 3;
+    }
+  }

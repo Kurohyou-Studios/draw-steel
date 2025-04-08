@@ -2,21 +2,35 @@ mixin editLayout(editName='base',prefix)
   +defineEdit(editName,prefix)&attributes(attributes).edit-layout
     +cutWrapper
       block
-      .grid-span-all.button-row
-        +editSectionSave(editName).material-icons
-          |save
-        +editSectionCancel(editName).material-icons
-          |close
+      .grid-span-all.button-container
+        .button-row
+          +editSectionSave(editName).material-icons
+            |save
+          +editSectionCancel(editName).material-icons
+            |close
 +scss('sheet').
   .edit-layout{
     margin-right: -5px;
     margin-top: -5px;
     filter: drop-shadow(rgba(0, 0, 0, 0.45) 0px 25px 20px);
-    .button-row{
+    isolation: isolate;
+    .button-container{
       position: sticky;
-      bottom: 0px;
+      bottom: -5px;
+      margin-bottom: -5px;
+      margin-left: -5px;
+      margin-right: -10px;
+      box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px 5px, rgba(0, 0, 0, 0.3) 0px 8px 16px 8px;
+    }
+    .button-row{
       display: grid;
       grid-template-columns: 1fr 1fr;
+      clip-path: polygon(
+        0 0, 100% 0,
+        100% calc(100% - var(--clipSize)),
+        calc(100% - var(--clipSize)) 100%, var(--clipSize) 100%,
+        0 calc(100% - var(--clipSize))
+        );
       button{
         justify-self: stretch;
         width: 100%;

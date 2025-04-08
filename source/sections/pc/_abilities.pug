@@ -8,31 +8,68 @@ mixin circleLabel
 section(data-i18n-aria-label="abilities").ability-container
   .repeating-section
     +editableRepeat({name:'abilities'})
-      each name in ['name','type','keywords','action','distance','target','power roll','tier 1','tier 2','tier 3','trigger','effect','cost']
+      each name in ['name','type','keywords','action','distance','target','power roll','trigger','effect','cost']
         +hidden({name})
+      each n in [1,2,3]
+        +hidden({name:`tier ${n} damage`,value:'',trigger:{
+          affects:[`repeating_abilities_$x_parsed_tier_${n}`]
+        }})
+        +hidden({name:`tier ${n} details`,value:'',trigger:{
+          affects:[`repeating_abilities_$x_parsed_tier_${n}`]
+        }})
       +headedCut.ability-display
         +header.ability-header
-          +span({name:'type','data-i18n-dynamic':''})
+          +span({name:'type','data-i18n-dynamic':''}).capitalize.bold
         +content
           +diamondBorder('bottom').grid-span-all
             .flex-box.half-gap.justify-space-between
               +roller({name:'roll',trigger:{
                 triggeredFuncs:['rollAbility']
               }})
-                +span({name:'name'})
+                +span({name:'name'}).bold
               +hidden({name:'cost'}).display-control--non-zero
               +circleLabel.controlled-display
-          each label,name in {keywords:'keywords','action type':'action',distance:'distance',target:'target','power roll':'power roll'}
+            +hidden({name:'raw keywords',value:''}).display-control--non-zero.keyword-control
+            .flex-box.tiny-gap.flex-wrap.keyword-display.uppercase.controlled-display
+              each keyword in spine.keywords
+                span(data-i18n=keyword class=`keyword-${keyword}`).keyword-entry
+              +hidden({name:'custom keywords',value:''}).display-control--non-zero
+              +span({name:'custom keywords'}).controlled-display
+          each label,name in {'action type':'action',distance:'distance',target:'target'}
             +hidden({name,value:''}).display-control--non-zero
-            +cutWrapper()(class=label).controlled-display
-              .input-label.stacked
-                span(data-i18n=label).input-label__text
-                +span({name}).input-label__input
+            .input-label.controlled-display.half-gap
+              span(data-i18n=label).input-label__text.bold.uppercase
+              +span({name}).input-label__input
+          +hidden({name:'power roll',value:''}).display-control--non-zero
+          .grid-span-all.controlled-display.flex-box.flex-column.tiny-gap
+            .flex-box.tiny-gap.justify-center
+              span(data-i18n='power roll').uppercase.bold
+              span +
+              +span({name:'power roll','data-i18n-dynamic':''}).capitalize
+            each s,n in spine.dicePoints
+              label.grid-span-all.tier-row.controlled-display
+                +cutWrapper
+                  span #{s}
+                +hidden({name:`parsed tier ${n+1}`,value:'',trigger:{
+                  calculation:'parseTierText'
+                }})
+                +span({name:`parsed tier ${n+1}`})
+          +checkbox({name:'show trigger',value:1,hidden:''}).display-control
+          .input-label.stacked.grid-span-all.controlled-display
+            span(data-i18n='trigger').bold.uppercase
+            +span({name:'trigger'}).description.grid-span-all
+          +hidden({name:'effect',value:''}).display-control--non-zero
+          .input-label.stacked.grid-span-all.controlled-display
+            span(data-i18n='effect').bold.uppercase
+            +span({name:'effect'}).description.grid-span-all
       +editLayout.ability-edit
         .name-row.grid-span-all
           +circleLabel
           +cutLabel({inputObj:{name:'name',type:'text'},spanObj:{'data-i18n':'name',class:'capitalize'}})
-          +cutSelectLabel({inputObj:{name:'type'},spanObj:{'data-i18n':'type',class:'capitalize'}})
+
+          +cutSelectLabel({inputObj:{name:'type',trigger:{
+            affects:['base_edit_show_trigger']
+          }},spanObj:{'data-i18n':'type',class:'capitalize'}})
             +option({value:'ability','data-i18n':'ability',selected:''}).capitalize
             +option({value:'melee free strike','data-i18n':'melee free strike'}).capitalize
             +option({value:'ranged free strike','data-i18n':'ranged free strike'}).capitalize
@@ -40,6 +77,16 @@ section(data-i18n-aria-label="abilities").ability-container
             +option({value:'heroic ability','data-i18n':'heroic'}).capitalize
             +option({value:'triggered action','data-i18n':'triggered'}).capitalize
             +option({value:'free triggered action','data-i18n':'free triggered'}).capitalize
+        //- +customControlFieldset({
+        //-   name:'keywords',
+        //-   trigger:{},
+        //-   addClass:'inlineFieldset'
+        //- })
+        //-   +customSelect({name:'test'}).underlined
+        //-     +option({value:'','data-i18n':'select one'}) 
+        //-     each keyword in spine.keywords
+        //-       +option({value:keyword,'data-i18n':keyword})
+            
         +cutLabel({inputObj:{name:'keywords',type:'text'},spanObj:{'data-i18n':'keywords'}}).grid-span-4
         +cutLabel({inputObj:{name:'action type',type:'text'},spanObj:{'data-i18n':'action'}}).grid-span-2
         +cutLabel({inputObj:{name:'distance',type:'text'},spanObj:{'data-i18n':'distance'}}).grid-span-3
@@ -53,12 +100,11 @@ section(data-i18n-aria-label="abilities").ability-container
           label.grid-span-all.tier-row.controlled-display
             +cutWrapper
               span #{s}
-            +adaptiveTextarea({name:`tier ${n+1}`}).underlined
-        +checkbox({name:'type',value:'triggered action',hidden:''}).display-control
-        label.input-label.stacked.grid-span-all.effect-input.controlled-display
-          span(data-i18n='trigger').input-label__text
-          +adaptiveTextarea({name:'trigger'}).underlined.input-label__input
-        +checkbox({name:'type',value:'free triggered action',hidden:''}).display-control
+            +adaptiveTextarea({name:`tier ${n+1} damage`}).underlined
+            +adaptiveTextarea({name:`tier ${n+1} details`}).underlined
+        +checkbox({name:'show trigger',value:1,hidden:'',trigger:{
+          calculation:'showTrigger'
+        }}).display-control
         label.input-label.stacked.grid-span-all.effect-input.controlled-display
           span(data-i18n='trigger').input-label__text
           +adaptiveTextarea({name:'trigger'}).underlined.input-label__input
@@ -70,6 +116,48 @@ section(data-i18n-aria-label="abilities").ability-container
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: var(--half-gap);
+  }
+  .keyword-control{
+    &:not([value*='area']){
+      + .keyword-display > .keyword-area{
+        display: none;
+      }
+    }
+    &:not([value*='charge']){
+      + .keyword-display > .keyword-charge{
+        display: none;
+      }
+    }
+    &:not([value*='magic']){
+      + .keyword-display > .keyword-magic{
+        display: none;
+      }
+    }
+    &:not([value*='melee']){
+      + .keyword-display > .keyword-melee{
+        display: none;
+      }
+    }
+    &:not([value*='psionic']){
+      + .keyword-display > .keyword-psionic{
+        display: none;
+      }
+    }
+    &:not([value*='ranged']){
+      + .keyword-display > .keyword-ranged{
+        display: none;
+      }
+    }
+    &:not([value*='strike']){
+      + .keyword-display > .keyword-strike{
+        display: none;
+      }
+    }
+    &:not([value*='weapon']){
+      + .keyword-display > .keyword-weapon{
+        display: none;
+      }
+    }
   }
   .circle-label{
     display: grid;
@@ -84,6 +172,7 @@ section(data-i18n-aria-label="abilities").ability-container
       border: 2px solid var(--borderColor);
       border-radius: 50%;
       text-align: center;
+      padding: var(--tiny-gap);
     }
     :last-child{
       background-color: var(--backColor);
@@ -121,27 +210,38 @@ section(data-i18n-aria-label="abilities").ability-container
         align-self: stretch;
       }
     }
-    .tier-row{
-      align-items: start;
-      gap: inherit;
+  }
+
+  .tier-row{
+    align-items: start;
+    gap: var(--tiny-gap);
+    display: grid;
+    grid-template-columns: 60px 1fr 1fr;
+    .cut-container{
       display: grid;
-      grid-template-columns: 60px 1fr;
-      .cut-container{
-        display: grid;
-        place-items: center;
-      }
-      > .adaptive{
-        flex-grow: 1;
-      }
+      place-items: center;
+    }
+    > .adaptive,
+    > span{
+      flex-grow: 1;
+    }
+    > span{
+      align-self: center;
     }
   }
   .ability-container > .repeating-section{
     position: relative;
     row-gap: var(--half-gap);
     .repcontainer{
-      gap: var(--half-gap);
+      gap: 0;
+    }
+    .edit-button{
+      right: 2px;
+      top: 10px;
+      z-index: 10;
     }
     .repcontrol-button--add{
+      break-before: avoid;
       border: {
         top: 2px solid var(--borderColor);
         left: 2px solid var(--borderColor);
@@ -171,7 +271,57 @@ section(data-i18n-aria-label="abilities").ability-container
         linear-gradient(calc(45deg + 270deg),var(--borderColor) var(--notchSize),transparent var(--notchSize) + var(--notchBorderSize)),
         linear-gradient(calc(45deg + 180deg),var(--borderColor) var(--notchSize),transparent var(--notchSize) + var(--notchBorderSize));
     }
-    > *{
+    .repitem{
       break-inside: avoid;
+      margin-bottom: var(--half-gap);
     }
   }
++module.
+  /**
+  * 
+  * @param {object} trigger - The trigger that caused the function to be called
+  * @param {object} attributes - The attribute values of the character
+  * @param {object[]} sections - All the repeating section IDs
+  * @param {object} casc - Expanded cascade object
+  */
+  const showTrigger = function({trigger,attributes,sections,casc}){
+    return +/triggered/.test(attributes.base_edit_type);
+  };
+  k.registerFuncs({showTrigger});
+
+  /**
+   * 
+   * @param {object} trigger - The trigger that caused the function to be called
+   * @param {object} attributes - The attribute values of the character
+   * @param {object[]} sections - All the repeating section IDs
+   * @param {object} casc - Expanded cascade object
+   */
+  const parseTierText = function({trigger,attributes,sections,casc}){
+    const [section,rowID,attr] = k.parseTriggerName(trigger.name);
+    const baseAttrName = trigger.name.replace(/parsed_/,'');
+
+    const mathOpsRx = /(?:Math\.(?:floor|ceil|round|abs))?\(?(?<!d)(?:\d+(?:\.\d+)?|\.\d+)\s*[+\-\/\*\^]\s*(?:\d+(?:\.\d+)?|\.\d+)(?!d)\)?/g;
+    const baseTierText = `${attributes[`${baseAttrName}_damage`]}; ${attributes[`${baseAttrName}_details`]}`.replace(/;\s*$/,'');
+    const row = `${section}_${rowID}`;
+    let formCalc = k.parseKFormula({trigger:{name:baseAttrName,formula:attributes[baseAttrName],type:'text'},attributes,sections,casc});
+    let mathOpsMatch = mathOpsRx.test(formCalc);
+    while (mathOpsMatch){
+      formCalc = formCalc.replace(mathOpsRx,mat => eval(mat));
+      mathOpsMatch = mathOpsRx.test(formCalc);
+    }
+    return formCalc;
+  };
+  k.registerFuncs({parseTierText});
+
+  /**
+   * 
+   * @param {object} trigger - The trigger that caused the function to be called
+   * @param {object} attributes - The attribute values of the character
+   * @param {object[]} sections - All the repeating section IDs
+   * @param {object} casc - Expanded cascade object
+   */
+  const assembleTierText = function({trigger,attributes,sections,casc}){
+    const n = +trigger.name.replace(/base_edit_tier_/,'');
+    return `${attributes[`base_edit_tier_${n}_damage`]}; ${attributes[`base_edit_tier_${n}_details`]}`.replace(/;\s*$/,'');
+  };
+  k.registerFuncs({assembleTierText});

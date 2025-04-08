@@ -76,7 +76,7 @@ mixin generateEdit(obj = {})
     - throw new Error(`No edit content defined for ${name}. +generateEdit must be called after all edit displays for a given overlay have been defined`);
   if varObjects['kEditDisplays'][name]
     - throw new Error(`edit display has already been created for ${name}. Only one display per index is allowed`);
-  - varObjects['kEditDisplays'][name] = [];
+  - varObjects['kEditDisplays'][name] = {};
   - let classText = `k-edit-overlay--${x} k-edit-overlay--${y}`;
   if animation
     if Array.isArray(animation)
@@ -92,21 +92,47 @@ mixin generateEdit(obj = {})
   .k-edit-overlay.k-controlled-display(class=classText)&attributes(attributes)
     - setSystemPrefix(`${name} edit`);
     block
+    - pug_mixins['_input'] = pug_mixins.input;
+    - pug_mixins['_textarea'] = pug_mixins.textarea;
+    - pug_mixins['_select'] = pug_mixins.select;
+    - let prefix = 'NOT SET';
+    mixin registerEditFields(inputObj)
+      - varObjects.kEditDisplays[name] = varObjects.kEditDisplays[name] || {};
+      - varObjects.kEditDisplays[name][prefix] = varObjects.kEditDisplays[name][prefix] || [];
+      - varObjects.kEditDisplays[name][prefix].push(attrName(inputObj.name))
+    mixin editInput(inputObj)
+      +registerEditFields(inputObj)
+      +_input(inputObj)&attributes(attributes)
+    mixin editTextarea(inputObj)
+      +registerEditFields(inputObj)
+      +_textarea(inputObj)&attributes(attributes)
+    mixin editSelect(inputObj)
+      +registerEditFields(inputObj)
+      +_select(inputObj)&attributes(attributes)
+        block
+    //- shadow the input and textarea mixins
     each obj,key in editSections[name]
-      - varObjects['kEditDisplays'][name].push(key);
+      - prefix = key;
       +checkbox({name:`k overlay`,value:key,hidden:''}).k-edit-display-control
+      - pug_mixins['input'] = pug_mixins['editInput'];
+      - pug_mixins['textarea'] = pug_mixins['editTextarea'];
+      - pug_mixins['select'] = pug_mixins['editSelect'];
       .k-controlled-display&attributes(obj.attributes)
         - obj.block && obj.block();
+      //- unshadow the mixins
+      - pug_mixins.input = pug_mixins._input;
+      - pug_mixins.textarea = pug_mixins._textarea;
+      - pug_mixins.select = pug_mixins._select;
     - setSystemPrefix('');
 +module
   include ./editJS/_index.pug
 +scss('sheet').
-  :where(.external-edit-section) + :where(fieldset) + :where(.repcontainer){
-    .edit-button{
-      &:where(:before){
-        content: 'p';
-      }
+  .edit-button.edit-button{
+    &:before{
+      content: 'p';
     }
+  }
+  :where(.external-edit-section) + :where(fieldset) + :where(.repcontainer){
     + .repcontrol > .repcontrol_add{
       display: none !important;
     }

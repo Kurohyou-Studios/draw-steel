@@ -5,5 +5,8 @@
   "heroic ability":"heroic ability",
   "melee free strike":"melee free strike",
   "ranged free strike":"ranged free strike",
-  "signature ability": "signature ability"
+  "signature ability": "signature ability",
+  "tabs-details-general": "general",
+  "tabs-details-combat": "combat",
+  "tabs-details-downtime": "downtime"
 }

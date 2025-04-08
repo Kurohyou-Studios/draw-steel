@@ -3,13 +3,11 @@ const createKEdits = ({attributes,sections,casc,trigger}) => {
   const section = trigger.name
     .replace(/create-/,'');
   kOverlaySetup(trigger.editName,attributes,section,trigger.prefix);
-  const templateAttrs = Object.keys(k.cascades)
-    .filter(a => a.startsWith(`attr_repeating_${section}`));
-  templateAttrs.forEach(a => {
-    const attrName = a.replace(/attr_repeating_.+?_.+?_/,'');
-    const cascObj = k.cascades[`attr_row_${attrName}`];
+  kEditDisplays[trigger.editName][trigger.prefix]?.forEach(baseName => {
+    const attrName = baseName.replace(`${trigger.editName}_edit_`,'');
+    const cascObj = k.cascades[`attr_${baseName}`];
     if(cascObj){
-      attributes[`row_${attrName}`] = cascObj.defaultValue;
+      attributes[baseName] = cascObj.defaultValue;
     }
   });
 };

@@ -16,6 +16,8 @@
   --notchSize: 3px;
   --notchBorderSize: 2px;
   --clipSize: calc(var(--notchSize) * 1.7072135785);
+
+  --input-label-gap: var(--tiny-gap);
 }
 
 @mixin dark {

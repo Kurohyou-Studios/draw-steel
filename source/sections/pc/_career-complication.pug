@@ -1,0 +1,25 @@
+each name in ['career','complication']
+  section(data-i18n-aria-label=name).career-complication
+    +diamondBorder('bottom').career-complication-header
+      span(data-i18n=name).uppercase
+    +headedCut
+      +header
+        span(data-i18n='benefit').uppercase
+      +content
+        +adaptiveTextarea({name:`${name} benefit`})
+    -
+      const secondName = name === 'career' ?
+        'inciting incident' :
+        'drawback';
+    +headedCut
+      +header
+        span(data-i18n=secondName).uppercase
+      +content
+        +adaptiveTextarea({name:secondName})
++scss('sheet').
+  .career-complication{
+    break-inside: avoid;
+  }
+  .career-complication-header{
+    margin-bottom: var(--normal-gap);
+  }
